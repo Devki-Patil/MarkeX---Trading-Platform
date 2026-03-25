@@ -297,12 +297,17 @@ io.on("connection", () => {
 });
 
 // ================= DB =================
+const PORT = process.env.PORT || 10000;
+
+// START SERVER FIRST
+server.listen(PORT, () => {
+  console.log("Server running on", PORT);
+});
+
+// THEN CONNECT DB
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
-    server.listen(PORT, () =>
-      console.log("Server running on", PORT)
-    );
   })
   .catch((err) => console.log(err));
