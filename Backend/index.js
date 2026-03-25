@@ -28,7 +28,6 @@ const io = new Server(server, {
   credentials: true,
 });
 
-const PORT = process.env.PORT || 3002;
 
 // ================= MIDDLEWARE =================
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
@@ -297,7 +296,8 @@ io.on("connection", () => {
 });
 
 // ================= DB =================
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3002;
+
 
 // START SERVER FIRST
 server.listen(PORT, () => {
