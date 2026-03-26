@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3002", 
+  baseURL: "https://markex-trading-platform.onrender.com", 
   withCredentials: true,
 });
 
@@ -20,7 +20,7 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem("token");
+      localStorage.removeItem("accessToken"); 
       window.location.replace("/login");
     }
     return Promise.reject(err);
