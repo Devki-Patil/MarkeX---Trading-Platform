@@ -27,18 +27,47 @@ const server = http.createServer(app);
 // ================= CORS CONFIG =================
 const allowedOrigins = [
   "http://localhost:5173",
+  // "https://markex-frontend.vercel.app"
 ];
 
+// ================= MIDDLEWARE =================
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS not allowed"));
+      }
+    },
     credentials: true,
   })
 );
 
+// ✅ PRE-FLIGHT FIX (VERY IMPORTANT)
+app.options(
+  "*",
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true,
+  })
+);
+
+// ================= SOCKET =================
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: "http://localhost:5173",
     credentials: true,
   },
 });
