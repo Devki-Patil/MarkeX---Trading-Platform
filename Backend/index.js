@@ -26,34 +26,22 @@ const server = http.createServer(app);
 // SOCKET
 // ================= CORS CONFIG =================
 const allowedOrigins = [
-  "http://localhost:5173", // local frontend
-  "https://your-frontend-domain.vercel.app",
+  "http://localhost:5173",
 ];
 
-// ================= SOCKET =================
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     credentials: true,
   },
 });
-
-// ================= MIDDLEWARE =================
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps / Postman)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS not allowed"));
-      }
-    },
-    credentials: true,
-  })
-);
 
 // Preflight (VERY IMPORTANT)
 app.options("*", cors());

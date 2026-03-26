@@ -16,7 +16,7 @@ export default function Signup() {
     setMsg("");
 
     try {
-      const res = await api.post("/auth/register", {
+      const res = await api.post("/api/auth/register", {
         name,
         email,
         password,

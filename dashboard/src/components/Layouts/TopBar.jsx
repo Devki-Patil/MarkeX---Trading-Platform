@@ -42,7 +42,7 @@ export default function TopBar() {
   /* LOGOUT */
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post("/api/auth/logout");
     } catch (err) {
       console.error("LOGOUT ERROR:", err);
     } finally {

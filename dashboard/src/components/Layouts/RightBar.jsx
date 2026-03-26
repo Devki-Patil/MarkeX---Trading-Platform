@@ -21,7 +21,9 @@ export default function RightBar() {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:3002");
+    const socket = io("https://markex-trading-platform-66xy.onrender.com", {
+  withCredentials: true,
+});
 
     socket.on("fundsUpdate", fetchData);
 
