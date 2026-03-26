@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../model/UserModel");
-const { createDefaultFunds } = require("./FundsController");
+
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -27,15 +27,14 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       passwordHash,
-      refreshTokens: [], // ✅ important
+      refreshTokens: [],
     });
 
-    // await createDefaultFunds(user._id);
-
     res.status(201).json({ message: "User registered" });
+
   } catch (err) {
-    console.error("REGISTER ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("REGISTER ERROR:", err.message);
+    res.status(500).json({ message: err.message }); // 🔥 show real error
   }
 };
 
@@ -59,22 +58,18 @@ exports.loginUser = async (req, res) => {
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
-    // ✅ FIX SAFE ARRAY
-    if (!user.refreshTokens) {
-      user.refreshTokens = [];
-    }
+    if (!user.refreshTokens) user.refreshTokens = [];
 
     user.refreshTokens.push({ token: refreshToken });
     await user.save();
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "none",   // 🔥 FIX
+      secure: true,       // 🔥 FIX (Render pe HTTPS hai)
     });
 
-    return res.json({
+    res.json({
       accessToken,
       user: {
         id: user._id,
@@ -84,11 +79,12 @@ exports.loginUser = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    res.status(500).json({ message: "Login failed" });
+    console.error("LOGIN ERROR:", err.message);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/* ================= REFRESH ================= */
 exports.refreshAccessToken = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -97,7 +93,6 @@ exports.refreshAccessToken = async (req, res) => {
       return res.status(401).json({ message: "No refresh token" });
     }
 
-    // verify refresh token
     const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
     const user = await User.findById(decoded.userId);
@@ -105,7 +100,6 @@ exports.refreshAccessToken = async (req, res) => {
       return res.status(401).json({ message: "User not found" });
     }
 
-    // check if token exists in DB
     const tokenExists = user.refreshTokens.find(
       (t) => t.token === token
     );
@@ -114,7 +108,6 @@ exports.refreshAccessToken = async (req, res) => {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
 
-    // generate new access token
     const newAccessToken = generateAccessToken({
       userId: user._id,
       role: user.role,
@@ -123,10 +116,12 @@ exports.refreshAccessToken = async (req, res) => {
     res.json({ accessToken: newAccessToken });
 
   } catch (err) {
-    console.error("REFRESH ERROR:", err);
-    return res.status(403).json({ message: "Invalid or expired token" });
+    console.error("REFRESH ERROR:", err.message);
+    res.status(403).json({ message: err.message });
   }
 };
+
+/* ================= LOGOUT ================= */
 exports.logoutUser = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -142,20 +137,18 @@ exports.logoutUser = async (req, res) => {
       return res.status(401).json({ message: "User not found" });
     }
 
-    // remove refresh token from DB
     user.refreshTokens = user.refreshTokens.filter(
       (t) => t.token !== token
     );
 
     await user.save();
 
-    // clear cookie
     res.clearCookie("refreshToken");
 
     res.json({ message: "Logged out successfully" });
 
   } catch (err) {
-    console.error("LOGOUT ERROR:", err);
-    res.status(500).json({ message: "Logout failed" });
+    console.error("LOGOUT ERROR:", err.message);
+    res.status(500).json({ message: err.message });
   }
 };
