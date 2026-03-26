@@ -23,46 +23,35 @@ const stockData = require("../dashboard/src/data/Data");
 const app = express();
 const server = http.createServer(app);
 
-// SOCKET
 // ================= CORS CONFIG =================
 const allowedOrigins = [
   "http://localhost:5173",
-  // "https://markex-frontend.vercel.app"
+  // future: "https://markex-frontend.vercel.app"
 ];
 
 // ================= MIDDLEWARE =================
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (Postman etc.)
-      if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS not allowed"));
-      }
-    },
-    credentials: true,
-  })
-);
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
+  }
 
-// ✅ PRE-FLIGHT FIX (VERY IMPORTANT)
-app.options(
-  "*",
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS not allowed"));
-      }
-    },
-    credentials: true,
-  })
-);
+  next();
+});
 
 // ================= SOCKET =================
 const io = new Server(server, {
@@ -72,9 +61,7 @@ const io = new Server(server, {
   },
 });
 
-// Preflight (VERY IMPORTANT)
-app.options("*", cors());
-
+// ================= OTHER MIDDLEWARE =================
 app.use(express.json());
 app.use(cookieParser());
 
