@@ -88,3 +88,74 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
+
+exports.refreshAccessToken = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+
+    if (!token) {
+      return res.status(401).json({ message: "No refresh token" });
+    }
+
+    // verify refresh token
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // check if token exists in DB
+    const tokenExists = user.refreshTokens.find(
+      (t) => t.token === token
+    );
+
+    if (!tokenExists) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    // generate new access token
+    const newAccessToken = generateAccessToken({
+      userId: user._id,
+      role: user.role,
+    });
+
+    res.json({ accessToken: newAccessToken });
+
+  } catch (err) {
+    console.error("REFRESH ERROR:", err);
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
+};
+exports.logoutUser = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+
+    if (!token) {
+      return res.status(400).json({ message: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // remove refresh token from DB
+    user.refreshTokens = user.refreshTokens.filter(
+      (t) => t.token !== token
+    );
+
+    await user.save();
+
+    // clear cookie
+    res.clearCookie("refreshToken");
+
+    res.json({ message: "Logged out successfully" });
+
+  } catch (err) {
+    console.error("LOGOUT ERROR:", err);
+    res.status(500).json({ message: "Logout failed" });
+  }
+};
