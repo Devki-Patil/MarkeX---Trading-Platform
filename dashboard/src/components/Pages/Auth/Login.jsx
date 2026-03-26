@@ -26,14 +26,14 @@ export default function Login() {
 
       console.log("LOGIN RES:", res.data);
 
-      // correct token extraction
-      const token = res.data.accessToken;
+      // ✅ FIX: token properly extract
+      const token = res.data.token;
 
       if (!token) {
         throw new Error("Token not received");
       }
 
-      // FIXED (no mismatch)
+      // ✅ save token
       localStorage.setItem("accessToken", token);
 
       // optional user data
@@ -43,7 +43,6 @@ export default function Login() {
 
       setMsg("Login successful!");
 
-      // small delay for UX
       setTimeout(() => {
         navigate("/dashboard", { replace: true });
       }, 500);

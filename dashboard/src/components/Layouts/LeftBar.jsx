@@ -18,7 +18,7 @@ export default function LeftPanel() {
      ======================= */
   const fetchStocks = useCallback(async () => {
     try {
-      const res = await api.get("/allStocks");
+      const res = await api.get("/api/stocks");
       setAllStocks(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("STOCK FETCH ERROR:", err?.response?.data || err.message);
@@ -30,7 +30,7 @@ export default function LeftPanel() {
      ======================= */
   const fetchHoldings = useCallback(async () => {
     try {
-      const res = await api.get("/holdings");
+      const res = await api.get("/api/holdings");
       setHoldings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("HOLDINGS FETCH ERROR:", err?.response?.data || err.message);

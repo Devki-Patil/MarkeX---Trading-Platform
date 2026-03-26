@@ -9,7 +9,7 @@ export default function RightBar() {
 
   const fetchData = async () => {
     try {
-      const res = await api.get("/holdings");
+      const res = await api.get("/api/holdings");
       setHoldings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("HOLDINGS ERROR:", err);
