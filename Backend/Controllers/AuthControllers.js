@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../model/UserModel");
 const { createDefaultFunds } = require("./FundsController");
-
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -13,12 +12,14 @@ exports.registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password)
+    if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
+    }
 
     const exists = await User.findOne({ email });
-    if (exists)
+    if (exists) {
       return res.status(400).json({ message: "Email already exists" });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -27,6 +28,7 @@ exports.registerUser = async (req, res) => {
       email,
       passwordHash,
     });
+
     await createDefaultFunds(user._id);
 
     res.status(201).json({ message: "User registered" });
@@ -36,19 +38,21 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-
 /* ================= LOGIN ================= */
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user)
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     const payload = { userId: user._id, role: user.role };
 
     const accessToken = generateAccessToken(payload);
@@ -60,11 +64,11 @@ exports.loginUser = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       sameSite: "strict",
-      secure: false,
+      secure: false, // production me true karna
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({
+    return res.json({
       accessToken,
       user: {
         id: user._id,
@@ -73,9 +77,8 @@ exports.loginUser = async (req, res) => {
       },
     });
   } catch (err) {
+    console.error("LOGIN ERROR:", err);
     res.status(500).json({ message: "Login failed" });
-    console.error("LOGIN ERROR:", err); 
- 
   }
 };
 
@@ -83,8 +86,10 @@ exports.loginUser = async (req, res) => {
 exports.refreshAccessToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken)
+
+    if (!refreshToken) {
       return res.status(401).json({ message: "NO_REFRESH_TOKEN" });
+    }
 
     const decoded = jwt.verify(
       refreshToken,
@@ -92,14 +97,17 @@ exports.refreshAccessToken = async (req, res) => {
     );
 
     const user = await User.findById(decoded.userId);
-    if (!user)
+    if (!user) {
       return res.status(401).json({ message: "USER_NOT_FOUND" });
+    }
 
     const exists = user.refreshTokens.find(
       (t) => t.token === refreshToken
     );
-    if (!exists)
+
+    if (!exists) {
       return res.status(401).json({ message: "INVALID_REFRESH" });
+    }
 
     const newAccessToken = generateAccessToken({
       userId: user._id,
