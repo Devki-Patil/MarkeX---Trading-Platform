@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://markex-trading-platform-66xy.onrender.com",
-  withCredentials: true,
+  baseURL: "https://markex-trading-platform-66xy.onrender.com/api",
+  // withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {

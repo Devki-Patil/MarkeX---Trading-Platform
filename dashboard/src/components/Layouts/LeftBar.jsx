@@ -10,7 +10,7 @@ export default function LeftPanel() {
   const [selectedStock, setSelectedStock] = useState(null);
   const [actionType, setActionType] = useState(null);
   const [allStocks, setAllStocks] = useState([]);
-  const [holdings, setHoldings] = useState([]); 
+  const [holdings, setHoldings] = useState([]);
   const [search, setSearch] = useState("");
 
   /* =======================
@@ -18,22 +18,35 @@ export default function LeftPanel() {
      ======================= */
   const fetchStocks = useCallback(async () => {
     try {
-      const res = await api.get("/api/stocks");
+      const res = await api.get("/stocks");
+      console.log(" RESPONSE:", res);
+      console.log(" DATA:", res.data);
+
+      // ✅ FIX HERE
       setAllStocks(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("STOCK FETCH ERROR:", err?.response?.data || err.message);
+      console.error(
+        "STOCK FETCH ERROR:",
+        err?.response?.data || err.message
+      );
     }
   }, []);
 
   /* =======================
-     FETCH HOLDINGS (DB)
+     FETCH HOLDINGS
      ======================= */
   const fetchHoldings = useCallback(async () => {
     try {
-      const res = await api.get("/api/holdings");
+      const res = await api.get("/holdings");
+      console.log("HOLDINGS RESPONSE:", res.data);
+
+      // ✅ FIX HERE
       setHoldings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("HOLDINGS FETCH ERROR:", err?.response?.data || err.message);
+      console.error(
+        "HOLDINGS FETCH ERROR:",
+        err?.response?.data || err.message
+      );
     }
   }, []);
 
@@ -103,75 +116,83 @@ export default function LeftPanel() {
 
       {/* STOCK LIST */}
       <div className="flex-1 overflow-y-auto">
-        {visibleStocks.map((item, index) => {
-          const holdingQty = getHoldingQty(item.name);
-          const canSell = holdingQty > 0;
-          const isNegative = Number(item.change) < 0;
+        {visibleStocks.length === 0 ? (
+          <div className="text-center text-gray-500 mt-6">
+            No stocks found
+          </div>
+        ) : (
+          visibleStocks.map((item, index) => {
+            const holdingQty = getHoldingQty(item.name);
+            const canSell = holdingQty > 0;
+            const isNegative = Number(item.change) < 0;
 
-          return (
-            <div
-              key={item.name}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between hover:bg-[#1a1a1a]"
-            >
-              {/* LEFT */}
-              <div className="flex flex-col">
-                <span
-                  className={`font-medium ${
-                    isNegative ? "text-red-400" : "text-green-400"
-                  }`}
-                >
-                  {item.name}
-                </span>
-
-                {holdingQty > 0 && (
-                  <span className="text-xs text-gray-400">
-                    Holding: {holdingQty}
+            return (
+              <div
+                key={item.name}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between hover:bg-[#1a1a1a]"
+              >
+                {/* LEFT */}
+                <div className="flex flex-col">
+                  <span
+                    className={`font-medium ${
+                      isNegative ? "text-red-400" : "text-green-400"
+                    }`}
+                  >
+                    {item.name}
                   </span>
+
+                  {holdingQty > 0 && (
+                    <span className="text-xs text-gray-400">
+                      Holding: {holdingQty}
+                    </span>
+                  )}
+                </div>
+
+                {/* RIGHT */}
+                {hoveredIndex === index ? (
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => handleBuy(item, e)}
+                      className="px-3 py-1 rounded bg-blue-500 text-white"
+                    >
+                      B
+                    </button>
+
+                    <button
+                      disabled={!canSell}
+                      onClick={(e) => handleSell(item, e)}
+                      className={`px-3 py-1 rounded ${
+                        canSell
+                          ? "bg-red-500 text-white"
+                          : "bg-red-900/40 text-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      S
+                    </button>
+
+                    <LineChart size={18} />
+                    <Trash2 size={18} className="cursor-pointer" />
+                  </div>
+                ) : (
+                  <div className="flex flex-col text-right">
+                    <span className="font-medium">
+                      ₹ {item.price}
+                    </span>
+                    <span
+                      className={`text-xs ${
+                        isNegative ? "text-red-500" : "text-green-500"
+                      }`}
+                    >
+                      {item.change} ({item.percent}%)
+                    </span>
+                  </div>
                 )}
               </div>
-
-              {/* RIGHT */}
-              {hoveredIndex === index ? (
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={(e) => handleBuy(item, e)}
-                    className="px-3 py-1 rounded bg-blue-500 text-white"
-                  >
-                    B
-                  </button>
-
-                  <button
-                    disabled={!canSell}
-                    onClick={(e) => handleSell(item, e)}
-                    className={`px-3 py-1 rounded ${
-                      canSell
-                        ? "bg-red-500 text-white"
-                        : "bg-red-900/40 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    S
-                  </button>
-
-                  <LineChart size={18} />
-                  <Trash2 size={18} className="cursor-pointer" />
-                </div>
-              ) : (
-                <div className="flex flex-col text-right">
-                  <span className="font-medium">{item.price}</span>
-                  <span
-                    className={`text-xs ${
-                      isNegative ? "text-red-500" : "text-green-500"
-                    }`}
-                  >
-                    {item.change} ({item.percent}%)
-                  </span>
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* BUY POPUP */}

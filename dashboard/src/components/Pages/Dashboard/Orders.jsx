@@ -9,7 +9,7 @@ export default function Orders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await api.get("/api/orders");
+        const res = await api.get("/orders");
         setOrders(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.log("ORDERS FETCH ERROR:", err?.response?.data);

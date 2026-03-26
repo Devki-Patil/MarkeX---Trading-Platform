@@ -27,7 +27,7 @@ export default function TopBar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/api/user/profile");
+        const res = await api.get("/user/profile");
         setUserData(res.data);
       } catch (err) {
         console.error("PROFILE ERROR:", err);
@@ -42,7 +42,7 @@ export default function TopBar() {
   /* LOGOUT */
   const handleLogout = async () => {
     try {
-      await api.post("/api/auth/logout");
+      await api.post("/auth/logout");
     } catch (err) {
       console.error("LOGOUT ERROR:", err);
     } finally {

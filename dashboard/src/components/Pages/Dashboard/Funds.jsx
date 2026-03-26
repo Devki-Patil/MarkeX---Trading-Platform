@@ -11,7 +11,7 @@ export default function Funds() {
 
   const fetchFunds = async () => {
     try {
-      const res = await api.get("/api/funds");
+      const res = await api.get("/funds");
       setFunds(res.data);
     } catch {
       toast.error("Failed to load funds");
@@ -29,9 +29,9 @@ export default function Funds() {
 
     try {
       if (modalType === "add") {
-        await api.post("/api/funds/add", { amount });
+        await api.post("/funds/add", { amount });
       } else {
-        await api.post("/api/funds/withdraw", { amount });
+        await api.post("/funds/withdraw", { amount });
       }
 
       setStep("success");

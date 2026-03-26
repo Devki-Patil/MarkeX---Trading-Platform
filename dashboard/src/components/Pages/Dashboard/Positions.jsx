@@ -9,7 +9,7 @@ export default function Positions() {
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const res = await api.get("/api/positions");
+        const res = await api.get("/positions");
 
         const data = res.data;
 
