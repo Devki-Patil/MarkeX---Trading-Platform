@@ -30,7 +30,7 @@ exports.registerUser = async (req, res) => {
       refreshTokens: [], // ✅ important
     });
 
-    await createDefaultFunds(user._id);
+    // await createDefaultFunds(user._id);
 
     res.status(201).json({ message: "User registered" });
   } catch (err) {
