@@ -23,6 +23,7 @@ export default function Login() {
         email,
         password,
       });
+      localStorage.setItem("accessToken", res.data.accessToken);
 
       console.log("LOGIN RES:", res.data);
 
