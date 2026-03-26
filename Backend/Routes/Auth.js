@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router(); // 🔥 THIS WAS MISSING
+const router = express.Router(); 
 
 const {
   registerUser,
@@ -7,6 +7,7 @@ const {
   refreshAccessToken,
   logoutUser,
 } = require("../Controllers/AuthControllers");
+
 
 // ================= AUTH ROUTES =================
 router.post("/register", registerUser);
