@@ -7,7 +7,7 @@ export default function ProfileModal({ type, onClose }) {
   useEffect(() => {
     if (type === "profile") {
       const fetchProfile = async () => {
-        const res = await api.get("/api/user/profile");
+        const res = await api.get("/user/profile");
         setData(res.data);
       };
       fetchProfile();

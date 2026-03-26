@@ -6,7 +6,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const res = await api.get("/api/user/profile");
+      const res = await api.get("/user/profile");
       setData(res.data);
     };
     fetchProfile();

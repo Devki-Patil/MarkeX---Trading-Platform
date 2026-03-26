@@ -36,7 +36,7 @@ export default function BuyPopup({ stock, onClose }) {
 
       console.log("SENDING:", payload);
 
-      const res = await api.post("/newOrder", payload);
+      const res = await api.post("/order", payload);
 
       console.log("BUY SUCCESS:", res.data);
 

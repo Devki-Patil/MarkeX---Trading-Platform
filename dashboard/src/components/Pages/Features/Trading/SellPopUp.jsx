@@ -36,7 +36,7 @@ export default function SellPopup({ stock, onClose }) {
 
       console.log("SELLING:", payload);
 
-      const res = await api.post("/newOrder", payload);
+      const res = await api.post("/order", payload);
 
       console.log("SELL SUCCESS:", res.data);
 

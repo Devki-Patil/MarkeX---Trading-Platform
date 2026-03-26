@@ -26,7 +26,7 @@ const server = http.createServer(app);
 // ================= CORS CONFIG =================
 const allowedOrigins = [
   "http://localhost:5173",
-  // future: "https://markex-frontend.vercel.app"
+  "https://marke-x-trading-platform.vercel.app",  
 ];
 
 // ================= MIDDLEWARE =================
