@@ -12,7 +12,7 @@ export default function TradingChart() {
     // =========================
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 400,
+      height: chartContainerRef.current.clientHeight,
 
       layout: {
         background: { color: "#0a0a0a" },
@@ -144,7 +144,7 @@ export default function TradingChart() {
   return (
     <div
       ref={chartContainerRef}
-      className="w-full h-[400px] rounded-xl overflow-hidden"
+      className="w-full h-full rounded-xl overflow-hidden"
     />
   );
 }

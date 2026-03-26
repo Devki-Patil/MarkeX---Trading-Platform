@@ -44,7 +44,7 @@ export default function RightBar() {
           Market Overview
         </h2>
 
-        <div className="w-full h-[250px] md:h-[300px]">
+        <div className="w-full h-[300px] md:h-[400px]">
           <TradingChart />
         </div>
       </div>
