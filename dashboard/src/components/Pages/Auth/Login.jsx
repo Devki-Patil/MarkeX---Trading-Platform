@@ -26,17 +26,15 @@ export default function Login() {
 
       console.log("LOGIN RES:", res.data);
 
-      // ✅ FIX: token properly extract
-      const token = res.data.token;
+      // ✅ FIXED
+      const token = res.data.accessToken;
 
       if (!token) {
         throw new Error("Token not received");
       }
 
-      // ✅ save token
       localStorage.setItem("accessToken", token);
 
-      // optional user data
       if (res.data.user) {
         localStorage.setItem("userInfo", JSON.stringify(res.data.user));
       }
